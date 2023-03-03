@@ -3,7 +3,7 @@ import { db } from '../Utils/db'
 
 export const AccountMaintenance = db.define('weekly_offering_overview', {
   Date: {
-    type: DataTypes.DATE,
+    type: DataTypes.DATEONLY,
     allowNull: false,
   },
   ChurchOffering: {

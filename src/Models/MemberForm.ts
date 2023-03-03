@@ -7,7 +7,7 @@ export const Memberform = db.define('member_details', {
     allowNull: false,
   },
   DOB: {
-    type: DataTypes.DATE,
+    type: DataTypes.DATEONLY,
     allowNull: true,
   },
   Age: {
@@ -24,7 +24,7 @@ export const Memberform = db.define('member_details', {
     allowNull: true,
   },
   WeddingDate: {
-    type: DataTypes.DATE,
+    type: DataTypes.DATEONLY,
     allowNull: true,
   },
   EmailID: {

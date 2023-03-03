@@ -5,7 +5,7 @@ export const AccountingEntry = db.define(
   'weekly_offering_report',
   {
     Date: {
-      type: DataTypes.DATE,
+      type: DataTypes.DATEONLY,
       allowNull: false,
     },
     Name: {

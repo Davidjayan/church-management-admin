@@ -3,7 +3,7 @@ import { db } from "../Utils/db";
 
 export const StudentAttendance = db.define('students_attendance',{
     Date:{
-        type:DataTypes.DATE,
+        type:DataTypes.DATEONLY,
         allowNull:false
     },
     Name:{
