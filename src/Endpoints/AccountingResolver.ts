@@ -24,19 +24,56 @@ export class AccountingResolver {
         )
       } else {
         let result1 = await AccountingEntry.bulkCreate(data)
-        let result2 = await AccountingTotalsService.create(
-          { ...totals, ...denominations },
-          res,
-        )
+        let result2 = await AccountMaintenance.create({
+          ...totals,
+          ...denominations,
+        })
       }
-      console.log(entry)
-
-      // if (result1 && result2) {
       return returnTemplate(1, 'SUCCESS', res)
-      // }
     } catch (error) {
-      console.log(error);
+      console.log(error)
       return returnTemplate(0, error, res)
     }
+  }
+
+  static async fetchAccountingInformation(req: Request, res: Response) {
+    const date = req.query.Date
+    const data = await AccountingEntry.findAll({
+      where: { Date: date },
+      attributes: ['Name', 'Date', 'Type', 'Amount'],
+    })
+    const totals = await AccountMaintenance.findAll({
+      where: { Date: date },
+      attributes: [
+        'ChurchOffering',
+        'TitheTotal',
+        'OfferingTotal',
+        'SpecialOfferingTotal',
+        'BaptismofferingTotal',
+        'BirthdayofferingTotal',
+        'WeddingofferingTotal',
+        'ChilddedicationofferingTotal',
+        'CommittedofferingTotal',
+        'MissionaryTotal',
+        'BuildingFundTotal',
+        'GrandTotal',
+      ],
+    })
+    const denominations = await AccountMaintenance.findAll({
+      where: { Date: date },
+      attributes: [
+        'TwoThousands',
+        'FiveHundreds',
+        'TwoHundreds',
+        'Hundreds',
+        'Fifty',
+        'Twenty',
+        'Ten',
+        'Five',
+        'Two',
+        'One',
+      ],
+    })
+    return returnTemplate(1, { data, totals, denominations }, res)
   }
 }

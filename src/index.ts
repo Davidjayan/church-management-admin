@@ -7,7 +7,7 @@ import moment from 'moment'
 import { AccountMaintenance } from './Models/AccountMaintenance'
 import { AccountingResolver } from './Endpoints/AccountingResolver'
 const app: Application = express()
-const port = 5000
+const port = 9090
 
 const corsOpts = {
   origin: '*',
@@ -31,6 +31,13 @@ app.post(
   '/insert-accounting-information',
   async (req: Request, res: Response): Promise<Response> => {
     return await AccountingResolver.insertData(req, res)
+  },
+)
+
+app.get(
+  '/fetch-accounting-information',
+  async (req: Request, res: Response): Promise<Response> => {
+    return await AccountingResolver.fetchAccountingInformation(req, res)
   },
 )
 
