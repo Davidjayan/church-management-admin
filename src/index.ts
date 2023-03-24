@@ -41,6 +41,13 @@ app.get(
   },
 )
 
+app.get(
+  '/get-pdf',
+  async (req: Request, res: Response): Promise<Response> => {
+    return await AccountingResolver.getDataPdf(req, res)
+  },
+)
+
 db.sync({ alter: true }).then(() => {
   console.log('db is ready')
 })

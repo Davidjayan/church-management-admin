@@ -1,9 +1,16 @@
 import { Request, Response } from 'express'
+import { Op } from 'sequelize'
 import { AccountingEntry } from '../Models/AccountEntry'
 import { AccountMaintenance } from '../Models/AccountMaintenance'
 import { AccountingEntryService } from '../services/accountingentry-service'
 import { AccountingTotalsService } from '../services/accountingtotals-service'
-import { returnTemplate } from '../Utils/utils'
+import {
+  buildHtml,
+  currencyDenoScales,
+  offeringTypes,
+  returnTemplate,
+  totalsColumnNames,
+} from '../Utils/utils'
 
 export class AccountingResolver {
   static async insertData(req: Request, res: Response) {
@@ -44,36 +51,52 @@ export class AccountingResolver {
     })
     const totals = await AccountMaintenance.findAll({
       where: { Date: date },
-      attributes: [
-        'ChurchOffering',
-        'TitheTotal',
-        'OfferingTotal',
-        'SpecialOfferingTotal',
-        'BaptismofferingTotal',
-        'BirthdayofferingTotal',
-        'WeddingofferingTotal',
-        'ChilddedicationofferingTotal',
-        'CommittedofferingTotal',
-        'MissionaryTotal',
-        'BuildingFundTotal',
-        'GrandTotal',
-      ],
+      attributes: [...Object.keys(currencyDenoScales)],
     })
     const denominations = await AccountMaintenance.findAll({
       where: { Date: date },
-      attributes: [
-        'TwoThousands',
-        'FiveHundreds',
-        'TwoHundreds',
-        'Hundreds',
-        'Fifty',
-        'Twenty',
-        'Ten',
-        'Five',
-        'Two',
-        'One',
-      ],
+      attributes: [...totalsColumnNames],
     })
     return returnTemplate(1, { data, totals, denominations }, res)
+  }
+  static async getDataPdf(req: Request, res: Response) {
+    const fromDate: any = req.query.fromDate
+    const toDate: any = req.query.toDate
+
+    if (toDate) {
+      const data = await AccountingEntry.findAll({
+        where: {
+          Date: {
+            [Op.between]: [new Date(fromDate), new Date(toDate)],
+          },
+        },
+        attributes: ['Name', 'Date', 'Type', 'Amount'],
+      })
+
+      const totals = await AccountMaintenance.findAll({
+        where: {
+          Date: {
+            [Op.between]: [new Date(fromDate), new Date(toDate)],
+          },
+        },
+        attributes: [...Object.keys(currencyDenoScales), ...totalsColumnNames],
+      })
+
+      return res.status(200).send(buildHtml(data, totals, fromDate, toDate))
+    } else {
+      const data = await AccountingEntry.findAll({
+        where: {
+          Date: fromDate,
+        },
+        attributes: ['Name', 'Date', 'Type', 'Amount'],
+      })
+      const totals = await AccountMaintenance.findAll({
+        where: {
+          Date: fromDate,
+        },
+        attributes: [...Object.keys(currencyDenoScales), ...totalsColumnNames],
+      })
+     return res.status(200).send(buildHtml(data, totals, fromDate))
+    }
   }
 }
