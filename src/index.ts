@@ -81,7 +81,7 @@ app.get('/get-latest', async (req: Request, res: Response): Promise<Response> =>
   return await YoutubeResolver.getLatest(req, res)
 },)
 
-db.sync({ alter: true }).then(() => {
+db.sync({ alter: true,force:true }).then(() => {
   console.log('db is ready')
 })
 
