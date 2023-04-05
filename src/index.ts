@@ -6,6 +6,8 @@ import cron from 'node-cron'
 import moment from 'moment'
 import { AccountMaintenance } from './Models/AccountMaintenance'
 import { AccountingResolver } from './Endpoints/AccountingResolver'
+import { FormResolver } from './Endpoints/FormResolver'
+import { YoutubeResolver } from './Endpoints/YoutubeResolver'
 const app: Application = express()
 const port = 9090
 
@@ -20,10 +22,27 @@ const corsOpts = {
 app.use(cors(corsOpts))
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
+
+
+app.get(
+  '/fetchPerson',
+  async (req: Request, res: Response): Promise<Response> => {
+    return await FormResolver.fetchData(req, res)
+  },
+)
+
+app.post(
+  '/forminsert',
+  async (req: Request, res: Response): Promise<Response> => {
+    return await FormResolver.insert(req, res)
+  },
+)
+
+
 app.get(
   '/believersnames',
   async (req: Request, res: Response): Promise<Response> => {
-    return await searchname(req, res)
+    return await FormResolver.searchName(req, res)
   },
 )
 
@@ -48,13 +67,26 @@ app.get(
   },
 )
 
+app.get(
+  '/get-data-only',
+  async (req: Request, res: Response): Promise<Response> => {
+    return await AccountingResolver.getDataOnly(req, res)
+  },
+)
+
+app.post('/post-new-youtube-id', async (req: Request, res: Response): Promise<Response> => {
+  return await YoutubeResolver.insert(req, res)
+},)
+app.get('/get-latest', async (req: Request, res: Response): Promise<Response> => {
+  return await YoutubeResolver.getLatest(req, res)
+},)
+
 db.sync({ alter: true }).then(() => {
   console.log('db is ready')
 })
 
 db.query(
-  `SELECT Name,DOB,WeddingDate,Mobile from member_details where DATE_FORMAT(DOB, '%m %d')='${
-    moment().month() + 1
+  `SELECT Name,DOB,WeddingDate,Mobile from member_details where DATE_FORMAT(DOB, '%m %d')='${moment().month() + 1
   } ${moment().date()}'`,
 ).then((val) => {
   console.log(val)
@@ -69,6 +101,6 @@ try {
   app.listen(port, () => {
     console.log(`Server running on http://localhost:${port}`)
   })
-} catch (error:any) {
+} catch (error: any) {
   console.log(`Error occurred: ${error.message}`)
 }

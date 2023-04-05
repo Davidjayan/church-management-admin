@@ -8,7 +8,7 @@ export const Memberform = db.define('member_details', {
   },
   DOB: {
     type: DataTypes.DATEONLY,
-    allowNull: true,
+    allowNull: false,
   },
   Age: {
     type: DataTypes.INTEGER,
@@ -53,7 +53,7 @@ export const Memberform = db.define('member_details', {
   },
   FamilyID: {
     type: DataTypes.STRING,
-    allowNull: false,
+    allowNull: true,
   },
   SelfID: {
     type: DataTypes.STRING,

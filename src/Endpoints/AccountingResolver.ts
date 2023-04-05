@@ -49,11 +49,11 @@ export class AccountingResolver {
       where: { Date: date },
       attributes: ['Name', 'Date', 'Type', 'Amount'],
     })
-    const totals = await AccountMaintenance.findAll({
+    const denominations = await AccountMaintenance.findAll({
       where: { Date: date },
       attributes: [...Object.keys(currencyDenoScales)],
     })
-    const denominations = await AccountMaintenance.findAll({
+    const totals: any = await AccountMaintenance.findAll({
       where: { Date: date },
       attributes: [...totalsColumnNames],
     })
@@ -96,7 +96,60 @@ export class AccountingResolver {
         },
         attributes: [...Object.keys(currencyDenoScales), ...totalsColumnNames],
       })
-     return res.status(200).send(buildHtml(data, totals, fromDate))
+      return res.status(200).send(buildHtml(data, totals, fromDate))
+    }
+  }
+
+  static async getDataOnly(req: Request, res: Response) {
+    const fromDate: any = req.query.fromDate
+    const toDate: any = req.query.toDate ? req.query.toDate : new Date()
+
+    try {
+      const data = await AccountingEntry.findAll({
+        where: {
+          Date: {
+            [Op.between]: [new Date(fromDate), new Date(toDate)],
+          },
+        },
+        attributes: ['Name', 'Date', 'Type', 'Amount'],
+      })
+
+      const denominations = await AccountMaintenance.findAll({
+        where: {
+          Date: {
+            [Op.between]: [new Date(fromDate), new Date(toDate)],
+          },
+        },
+        attributes: [...Object.keys(currencyDenoScales)],
+      })
+      const totals:any = await AccountMaintenance.findAll({
+        where: {
+          Date: {
+            [Op.between]: [new Date(fromDate), new Date(toDate)],
+          },
+        },
+        attributes: [...totalsColumnNames],
+      })
+      let newTotals:any = {};
+      let newDenomintions:any={};
+      totalsColumnNames.map((col)=>{
+        let total = totals.reduce((prev:any,curr:any)=>{
+         return prev+curr[col]
+        },0)
+        newTotals[col] = total;
+      });
+      Object.keys(currencyDenoScales).map((col) => {
+        let total = denominations.reduce((prev: any, curr: any) => {
+          return prev + curr[col]
+        }, 0)
+        newDenomintions[col] = total;
+      });
+
+
+      return returnTemplate(1, { data, totals:newTotals, denominations:newDenomintions }, res)
+
+    } catch (error) {
+      return returnTemplate(1, error, res);
     }
   }
 }
