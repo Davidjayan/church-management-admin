@@ -23,6 +23,9 @@ app.use(cors(corsOpts))
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 
+app.get('/',(req,res)=>{
+  res.send('Ok')
+})
 
 app.get(
   '/fetchPerson',
