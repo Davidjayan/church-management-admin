@@ -56,7 +56,8 @@ export const Memberform = db.define('member_details', {
     allowNull: true,
   },
   SelfID: {
-    type: DataTypes.STRING,
+    type: DataTypes.STRING(20),
     allowNull: false,
+    
   },
 })
